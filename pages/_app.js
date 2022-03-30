@@ -1,3 +1,4 @@
+import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { SnackbarProvider } from 'notistack';
 import '../styles/globals.css'
 import {useEffect} from 'react';
@@ -12,7 +13,10 @@ if(jssStyles){
   return (
   	<SnackbarProvider anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
       <StoreProvider>
-        <Component {...pageProps} />
+      <PaypalScriptProvider>
+      <Component {...pageProps} />
+      </PaypalScriptProvider>
+        
       </StoreProvider>
     </SnackbarProvider>)
 }
