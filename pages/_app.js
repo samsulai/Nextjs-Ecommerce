@@ -13,7 +13,7 @@ if(jssStyles){
   return (
   	<SnackbarProvider anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
       <StoreProvider>
-      <PaypalScriptProvider>
+      <PaypalScriptProvider deferLoading={true}>
       <Component {...pageProps} />
       </PaypalScriptProvider>
         
