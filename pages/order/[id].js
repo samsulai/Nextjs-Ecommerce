@@ -1,5 +1,5 @@
 
-import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
+import { usePayPalScriptReducer, PayPalButtons } from '@paypal/react-paypal-js';
 import React, { useContext, useEffect, useReducer, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Layout from '../../components/Layout';
@@ -27,7 +27,7 @@ import {
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import useStyles from '../../utils/styles';
-import CheckoutWizard from '../../components/CheckoutWizard';
+
 import { useSnackbar } from 'notistack';
 import { getError } from '../../utils/error';
 import Cookies from 'js-cookie';
@@ -41,6 +41,14 @@ function reducer(state, action) {
       return { ...state, loading: false, order: action.payload, error: '' };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
+      case 'PAY_REQUEST':
+      return { ...state, loadingPay: true };
+    case 'PAY_SUCCESS':
+      return { ...state, loadingPay: false, successPay: true };
+    case 'PAY_FAIL':
+      return { ...state, loadingPay: false, errorPay: action.payload };
+      case 'PAY_RESET':
+      return { ...state, loadingPay: false, successPay: false, errorPay: '' };
     default:
       state;
   }
@@ -59,7 +67,7 @@ function Order({params}) {
   } = state;
   
 
-  const [{loading, error, order}, dispatch] = useReducer(reducer, {loading : true, order : {}, error: ''}) 
+  const [{loading, error, order, successPay}, dispatch] = useReducer(reducer, {loading : true, order : {}, error: ''}) 
 
   const {
     shippingAddress,
@@ -90,13 +98,17 @@ function Order({params}) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
-    if (!order._id || (order._id && order._id !== orderId)) {
+    if (!order._id || successPay || (order._id && order._id !== orderId)) {
       fetchOrder();
+      if (successPay) {
+        dispatch({ type: 'PAY_RESET' });
+      }
     }else{
       const loadPaypalScript = async ()=> {
         const {data : clientId} = await axios.get('/api/keys/paypal', {
-          headers : { authorization : `Bearer`$userInfo.token}`},
+          headers : { authorization : `Bearer ${userInfo.token}`},
         })
+        
         paypalDispatch({
           type: 'resetOptions',
           value: {
@@ -108,7 +120,7 @@ function Order({params}) {
       };
       loadPaypalScript()
     }
-  }, [order]);
+  }, [order, successPay]);
   const { closeSnackbar, enqueueSnackbar } = useSnackbar();
 
 function createOrder(data, actions){
@@ -150,7 +162,7 @@ function onApprove(data, actions) {
   }
   return (
     <Layout title={`Order ${orderId}`}>
-      <CheckoutWizard activeStep={3}></CheckoutWizard>
+      
       <Typography component="h1" variant="h1">
         Order {orderId}
       </Typography>
@@ -300,20 +312,21 @@ function onApprove(data, actions) {
                     </Grid>
                   </Grid>
                 </ListItem>
-                {
-}
-}
-!isPaid && (
-<ListItem>
-{
-isPending ? (<CircularProgress />) : (
-<PayPalButtons createOrder={createOrder} onApprove={onApprove} onError={Error} ></PayPalButtons>
-
-)
-
-
-}
-
+              {!isPaid && (
+                  <ListItem>
+                    {isPending ? (
+                      <CircularProgress />
+                    ) : (
+                      <div className={classes.fullWidth}>
+                      <div className={classes.fullWidth}>
+                        <PayPalButtons
+                          createOrder={createOrder}
+                          onApprove={onApprove}
+                          onError={onError}
+                        ></PayPalButtons>
+                        </div>
+                      </div>
+                    )}
 </ListItem>
 )
 

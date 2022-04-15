@@ -43,6 +43,9 @@ import { makeStyles } from '@material-ui/core'
 	error: {
     color: '#f04040',
   },
+  fullWidth : {
+  	width : '100%'
+  }
 })
 
  export default useStyles;
