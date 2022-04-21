@@ -66,13 +66,13 @@ export default function Payment() {
                   control={<Radio />}
                 ></FormControlLabel>
                 <FormControlLabel
-                  label="Stripe"
-                  value="Stripe"
+                  label="Paystack"
+                  value="Paystack"
                   control={<Radio />}
                 ></FormControlLabel>
                 <FormControlLabel
-                  label="Cash"
-                  value="Cash"
+                  label="FlutterWave"
+                  value="FlutterWave"
                   control={<Radio />}
                 ></FormControlLabel>
               </RadioGroup>
